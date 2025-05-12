@@ -33,6 +33,9 @@ namespace PRACTICA_CODIFICACIONES_DIGITALES
             pbNRZL.Paint += DrawNRZL;
             pbNRZL.Refresh();
 
+            pbBipAMI.Paint += DrawBipAMI;
+            pbBipAMI.Refresh();
+
         }
 
         private void DrawNRZL(object sender, PaintEventArgs e)
@@ -84,6 +87,78 @@ namespace PRACTICA_CODIFICACIONES_DIGITALES
                 g.DrawLine(pen, x, nextY, x + bitWidth, nextY);
                 x += bitWidth;
                 currentY = nextY;
+            }
+
+            // Dibujar flecha final
+            g.DrawLine(Pens.Blue, x, currentY, x + 10, currentY);
+            g.DrawLine(Pens.Blue, x + 5, currentY - 5, x + 10, currentY);
+            g.DrawLine(Pens.Blue, x + 5, currentY + 5, x + 10, currentY);
+        }
+
+        private void DrawBipAMI(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics; // 'Lienzo' para dibujar
+            Pen pen = new Pen(Color.Blue, 2); // 'Lapiz' azul para la señal
+            Pen gridPen = new Pen(Color.LightGray, 1); // 'Lapiz' gris para la cuadricula
+            Font font = new Font("Arial", 10); // Fuente
+
+            // Coordenadas base
+            int xStart = 50; // Donde empieza el dibujo en X
+            int yOneNeg = 250; // Coordenada vertical para el nivel -1
+            int yZero = 150; // Coordenada vertical para el nivel 0
+            int yOne = 50; // Coordenada vertical para el nivel 1
+            int bitWidth = 50; // Ancho que ocupa 1 bit
+
+            // Etiquetas '0' y '1' y '-1' en el eje Y
+            g.DrawString("1", font, Brushes.Black, 20, yOne - 10);
+            g.DrawString("0", font, Brushes.Black, 20, yZero - 10);
+            g.DrawString("-1", font, Brushes.Black, 20, yOneNeg - 10);
+
+            // Dibujar líneas verticales de la cuadrícula (1 por cada bit)
+            for (int i = 0; i <= bits.Length; i++)
+            {
+                int x1 = xStart + i * bitWidth;
+                g.DrawLine(gridPen, x1, yOne, x1, yOneNeg);
+            }
+
+            // Dibujar líneas horizontales (nivel 1 y 0)
+            g.DrawLine(gridPen, xStart, yOne, xStart + bits.Length * bitWidth, yOne);
+            g.DrawLine(gridPen, xStart, yZero, xStart + bits.Length * bitWidth, yZero);
+            g.DrawLine(gridPen, xStart, yOneNeg, xStart + bits.Length * bitWidth, yOneNeg);
+
+            // Dibujar los bits
+            int currentY = bits[0] == '1' ? yOne : yZero; // Nivel inicial
+            int x = xStart;  
+            int prev1 = yOneNeg;
+            for (int i = 0; i < bits.Length; i++)
+            {
+                int nextY = bits[i] == '1' ? yOne : yZero;
+
+                if(nextY == yOne)
+                {
+                    if(prev1 == yOne)
+                    {
+                        nextY = yOneNeg;
+                    }
+                }
+                // Dibujar bit encima
+                g.DrawString(bits[i].ToString(), font, Brushes.Black, x + 15, yOneNeg + 10);
+
+                // Si hay cambio de nivel, dibujar línea vertical
+                if (i > 0 && nextY != currentY)
+                {
+                    g.DrawLine(pen, x, currentY, x, nextY);
+                }
+
+                // Dibujar línea horizontal para el bit
+                g.DrawLine(pen, x, nextY, x + bitWidth, nextY);
+                x += bitWidth;
+                currentY = nextY;
+                if(currentY == yOne || currentY==yOneNeg)
+                {
+                    prev1 = currentY;
+                }
+                
             }
 
             // Dibujar flecha final
