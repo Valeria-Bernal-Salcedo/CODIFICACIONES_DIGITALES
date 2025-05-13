@@ -42,6 +42,12 @@ namespace PRACTICA_CODIFICACIONES_DIGITALES
             pbPESUDO.Paint += DrawPESUDO;
             pbPESUDO.Refresh();
 
+            pbManchester.Paint += DrawBipManchester;
+            pbManchester.Refresh();
+
+            pbCodigoDif.Paint += DrawCodigoDif;
+            pbCodigoDif.Refresh();
+
         }
 
         private void DrawPESUDO(object sender, PaintEventArgs e)
@@ -308,5 +314,165 @@ namespace PRACTICA_CODIFICACIONES_DIGITALES
             g.DrawLine(Pens.Blue, x + 5, currentY - 5, x + 10, currentY);
             g.DrawLine(Pens.Blue, x + 5, currentY + 5, x + 10, currentY);
         }
+
+        private void DrawBipManchester(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics; // 'Lienzo' para dibujar
+            Pen pen = new Pen(Color.Blue, 2); // 'Lapiz' azul para la señal
+            Pen gridPen = new Pen(Color.LightGray, 1); // 'Lapiz' gris para la cuadricula
+            Font font = new Font("Arial", 10); // Fuente
+
+            // Coordenadas base
+            int xStart = 50; // Donde empieza el dibujo en X
+            int yZero = 150; // Coordenada vertical para el nivel 0
+            int yOne = 50; // Coordenada vertical para el nivel 1
+            int bitWidth = 50; // Ancho que ocupa 1 bit
+
+            // Etiquetas '0' y '1' en el eje Y
+            g.DrawString("1", font, Brushes.Black, 20, yOne - 10);
+            g.DrawString("0", font, Brushes.Black, 20, yZero - 10);
+
+            // Dibujar líneas verticales de la cuadrícula (1 por cada bit)
+            for (int i = 0; i <= bits.Length; i++)
+            {
+                int x1 = xStart + i * bitWidth;
+                g.DrawLine(gridPen, x1, yOne, x1, yZero);
+            }
+
+            // Dibuja la cuadrícula horizontal (niveles 1 y 0)
+            g.DrawLine(gridPen, xStart, yOne, xStart + bits.Length * bitWidth, yOne);
+            g.DrawLine(gridPen, xStart, yZero, xStart + bits.Length * bitWidth, yZero);
+
+
+
+            int x = xStart;         // Coordenada X inicial para el primer bit
+            int currentY = yZero;   // Nivel actual donde está la línea (comienza en 0)
+
+            // Recorremos cada bit de la cadena
+            for (int i = 0; i < bits.Length; i++)
+            {
+                char bit = bits[i]; // Leemos el bit (por ejemplo, '1' o '0')
+                int midX = x + bitWidth / 2; // Punto medio del bit
+
+                int firstY, secondY;
+
+                // Codificación Manchester:
+                // - El '1' es una transición de 0 a 1 (primero abajo, luego arriba)
+                // - El '0' es una transición de 1 a 0 (primero arriba, luego abajo)
+                if (bit == '1')
+                {
+                    firstY = yZero;    // Comienza abajo
+                    secondY = yOne;    // Termina arriba
+                }
+                else
+                {
+                    firstY = yOne;     // Comienza arriba
+                    secondY = yZero;   // Termina abajo
+                }
+
+                // Escribe el bit debajo de su lugar en el eje X
+                g.DrawString(bit.ToString(), font, Brushes.Black, x + 15, yZero + 10);
+
+                // Dibuja la primera mitad del bit
+                if (i == 0)
+                {
+                    // Si es el primer bit, empieza directamente en el primer nivel
+                    g.DrawLine(pen, x, firstY, midX, firstY); // Solo la línea horizontal si es el primero
+                }
+                else
+                {
+                    // Si no es el primero, dibuja una línea vertical desde el nivel anterior si cambia
+                    g.DrawLine(pen, x, currentY, x, firstY);       // Línea vertical si hay cambio de nivel
+                    g.DrawLine(pen, x, firstY, midX, firstY);      // Línea horizontal de la primera mitad
+                }
+
+                // Transición a mitad del bit (de 0 a 1 o de 1 a 0) // Linea vertical
+                g.DrawLine(pen, midX, firstY, midX, secondY);
+
+                // Segunda mitad del bit (horizontal final)
+                g.DrawLine(pen, midX, secondY, x + bitWidth, secondY);
+
+                // Guardamos el nivel actual para el siguiente bit
+                currentY = secondY;
+                x += bitWidth; // Avanzamos al siguiente bit
+            }
+
+            // Dibujamos una flecha al final indicando la dirección de la señal
+            g.DrawLine(Pens.Blue, x, currentY, x + 10, currentY);           // Línea recta
+            g.DrawLine(Pens.Blue, x + 5, currentY - 5, x + 10, currentY);   // Punta arriba
+            g.DrawLine(Pens.Blue, x + 5, currentY + 5, x + 10, currentY);   // Punta abajo
+        }
+
+        private void DrawCodigoDif(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics; // 'Lienzo' para dibujar
+            Pen pen = new Pen(Color.Blue, 2); // 'Lapiz' azul para la señal
+            Pen gridPen = new Pen(Color.LightGray, 1); // 'Lapiz' gris para la cuadricula
+            Font font = new Font("Arial", 10); // Fuente
+
+            // Coordenadas base
+            int xStart = 50; // Donde empieza el dibujo en X
+            int yZero = 150; // Coordenada vertical para el nivel 0
+            int yOne = 50; // Coordenada vertical para el nivel 1
+            int bitWidth = 50; // Ancho que ocupa 1 bit
+
+            // Etiquetas '0' y '1' en el eje Y
+            g.DrawString("1", font, Brushes.Black, 20, yOne - 10);
+            g.DrawString("0", font, Brushes.Black, 20, yZero - 10);
+
+            // Dibujar líneas verticales de la cuadrícula (1 por cada bit)
+            for (int i = 0; i <= bits.Length; i++)
+            {
+                int x1 = xStart + i * bitWidth;
+                g.DrawLine(gridPen, x1, yOne, x1, yZero);
+            }
+
+            // Dibujar líneas horizontales (nivel 1 y 0)
+            g.DrawLine(gridPen, xStart, yOne, xStart + bits.Length * bitWidth, yOne);
+            g.DrawLine(gridPen, xStart, yZero, xStart + bits.Length * bitWidth, yZero);
+
+
+
+            // Inicia la posición horizontal y el nivel actual de la señal
+            int x = xStart;  // La posición inicial en X
+            int currentLevel = 1;  // 1 significa alto (yOne), 0 significa bajo (yZero)
+            int yActual = yOne;  // La señal comienza en alto (nivel 1)
+
+            // Recorremos cada bit en el array 'bits'
+            for (int i = 0; i < bits.Length; i++)
+            {
+                char bit = bits[i];  // Tomamos el bit actual
+                int midX = x + bitWidth / 2;  // Calculamos la posición media del bit
+
+                // Verificamos si hay transición al inicio del bit (solo ocurre si el bit es '0')
+                bool transitionStart = bit == '0';
+
+                if (transitionStart)
+                {
+                    // Si es '0', cambiamos el nivel de la señal (hay una transición)
+                    currentLevel = 1 - currentLevel;
+                    int yNew = (currentLevel == 1) ? yOne : yZero;
+                    g.DrawLine(pen, x, yActual, x, yNew);  // Dibujamos una transición vertical
+                    yActual = yNew;  // Actualizamos el nivel vertical actual
+                }
+
+                // Dibujamos la primera mitad del bit (línea horizontal)
+                g.DrawLine(pen, x, yActual, midX, yActual);
+
+                // Siempre hay transición en la mitad del bit
+                currentLevel = 1 - currentLevel;  // Cambiamos el nivel de la señal
+                int yNewMid = (currentLevel == 1) ? yOne : yZero;  // Establecemos el nuevo nivel en la mitad
+                g.DrawLine(pen, midX, yActual, midX, yNewMid);  // Dibujamos la transición vertical en la mitad
+                g.DrawLine(pen, midX, yNewMid, x + bitWidth, yNewMid);  // Dibujamos la segunda mitad del bit
+
+                // Actualizamos la posición vertical de la señal
+                yActual = yNewMid;
+
+                // Dibujamos el valor del bit en la parte inferior
+                g.DrawString(bit.ToString(), font, Brushes.Black, x + 15, yZero + 10);
+
+                // Avanzamos la posición horizontal para el siguiente bit
+                x += bitWidth;
+            }
     }
 }
